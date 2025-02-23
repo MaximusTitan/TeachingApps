@@ -23,11 +23,13 @@ export default function LessonHookTool() {
   const [error, setError] = useState<string | null>(null);
   const outputRef = useRef<HTMLDivElement>(null)
 
+  const allFieldsFilled = topic && objective && ageGroup;
+
   const generateHook = async () => {
     setIsLoading(true);
     setError(null);
     
-    if (!topic || !objective || !ageGroup) {
+    if (!allFieldsFilled) {
       setError('Please fill in all required fields');
       setIsLoading(false);
       return;
@@ -61,29 +63,29 @@ export default function LessonHookTool() {
   }
 
   return (
-    <div className="flex bg-gray-100 min-h-screen p-8">
+    <div className="flex bg-pink-100 min-h-screen p-8">
       <div className="flex w-1/2">
-        <Card className="max-w-4xl w-full p-8 bg-white shadow-lg rounded-2xl">
-          <h1 className="text-3xl font-bold mb-8 text-blue-600">Lesson Hook Generator</h1>
+        <Card className="max-w-4xl w-full p-8 bg-white shadow-lg rounded-2xl border border-pink-300">
+          <h1 className="text-3xl font-bold mb-8 text-pink-600">Lesson Hook Generator</h1>
           <div className="grid grid-cols-2 gap-6">
             <Input
-              className="bg-gray-50 text-gray-800 border border-gray-300 rounded-lg p-3"
+              className="bg-pink-50 text-gray-800 border border-pink-300 rounded-lg p-3"
               placeholder="Grade Level"
               value={ageGroup}
               onChange={(e) => setAgeGroup(e.target.value)}
             />
             <Input
-              className="bg-gray-50 text-gray-800 border border-gray-300 rounded-lg p-3"
+              className="bg-pink-50 text-gray-800 border border-pink-300 rounded-lg p-3"
               placeholder="Content Area"
             />
             <Input
-              className="bg-gray-50 text-gray-800 border border-gray-300 rounded-lg p-3"
+              className="bg-pink-50 text-gray-800 border border-pink-300 rounded-lg p-3"
               placeholder="Lesson Topic"
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
             />
             <Input
-              className="bg-gray-50 text-gray-800 border border-gray-300 rounded-lg p-3"
+              className="bg-pink-50 text-gray-800 border border-pink-300 rounded-lg p-3"
               placeholder="Learning Objective"
               value={objective}
               onChange={(e) => setObjective(e.target.value)}
@@ -91,7 +93,7 @@ export default function LessonHookTool() {
             <select
               value={hookType}
               onChange={(e) => setHookType(e.target.value)}
-              className="w-full p-3 rounded-lg border border-gray-300 bg-gray-50 text-gray-800"
+              className="w-full p-3 rounded-lg border border-pink-300 bg-pink-50 text-gray-800"
             >
               {hookTypes.map(type => (
                 <option key={type} value={type}>{type}</option>
@@ -100,8 +102,8 @@ export default function LessonHookTool() {
           </div>
           <Button 
             onClick={generateHook} 
-            disabled={isLoading}
-            className="w-full mt-6 bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-500"
+            disabled={!allFieldsFilled || isLoading}
+            className={`w-full mt-6 font-bold py-3 rounded-lg ${allFieldsFilled ? 'bg-pink-500 text-white hover:bg-pink-400' : 'bg-pink-100 text-pink-300 border border-pink-300 cursor-not-allowed'}`}
           >
             {isLoading ? 'Generating...' : 'Generate Hook'}
           </Button>
@@ -116,8 +118,8 @@ export default function LessonHookTool() {
 
       <div className="w-1/2 pl-8">
         {hook && (
-          <Card ref={outputRef} className="p-8 bg-blue-50 shadow-lg rounded-2xl">
-            <h2 className="text-2xl font-semibold mb-6 text-blue-600">Lesson Plan: {topic}</h2>
+          <Card ref={outputRef} className="p-8 bg-pink-50 shadow-lg rounded-2xl border border-pink-300">
+            <h2 className="text-2xl font-semibold mb-6 text-pink-600">Lesson Plan: {topic}</h2>
             <p className="text-gray-800"><strong>Grade Level:</strong> {ageGroup}</p>
             <p className="text-gray-800"><strong>Learning Objective:</strong> {objective}</p>
             <p className="text-gray-800"><strong>Hook Type:</strong> {hookType}</p>
