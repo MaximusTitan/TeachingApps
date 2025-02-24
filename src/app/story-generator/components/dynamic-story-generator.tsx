@@ -24,6 +24,11 @@ import {
   boardsByCountry,
   subjects,
 } from "@/constants/education-data";
+import jsPDF from "jspdf";
+import { fetchStoryHistory } from "../actions/generateStory";
+import { useEffect } from "react"; // Import useEffect at the top
+import { deleteStory } from "../actions/generateStory";
+import React from "react";
 
 export default function DynamicStoryGenerator() {
   const router = useRouter();
@@ -39,6 +44,16 @@ export default function DynamicStoryGenerator() {
     message: "",
     storyline: "",
   });
+  const [storyHistory, setStoryHistory] = useState<any[]>([]);
+  const [expandedStory, setExpandedStory] = useState<number | null>(null);
+
+  useEffect(() => {
+    async function loadHistory() {
+      const history = await fetchStoryHistory();
+      setStoryHistory(history);
+    }
+    loadHistory();
+  }, []);
 
   // Handle input changes
   const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -70,8 +85,6 @@ export default function DynamicStoryGenerator() {
         board,           
         subject          
       });
-      
-      console.log("✅ Generated Story:", story);
       setStoryPlans((prev) => [...prev, story]);
   
       toast({
@@ -86,6 +99,40 @@ export default function DynamicStoryGenerator() {
     }
   }  
 
+const handleDownloadPDF = (story: string, index: number) => {
+  const doc = new jsPDF();
+  
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(12);
+  
+  const marginLeft = 10;
+  const marginTop = 20;
+  const maxWidth = 180;
+  const lineHeight = 7;
+  let yPosition = marginTop;
+
+  // Convert Markdown-like syntax to PDF-friendly text
+  const formatText = (text: string) => {
+    return text
+      .replace(/\*\*(.*?)\*\*/g, (_, match) => `${match}`.toUpperCase()) // Bold
+      .replace(/\*(.*?)\*/g, (_, match) => `/${match}/`); // Italic
+  };
+
+  const storyLines: string[] = doc.splitTextToSize(formatText(story), maxWidth);
+
+  storyLines.forEach((line: string) => {
+    if (yPosition > 280) { 
+      doc.addPage();
+      yPosition = 20;
+    }
+    doc.text(line, marginLeft, yPosition);
+    yPosition += lineHeight;
+  });
+
+  doc.save(`story_${index + 1}.pdf`);
+};
+  
+  
   return (
     <div className="container mx-auto py-8 px-4 max-w-6xl space-y-8">
       <Link href="/tools">
@@ -232,19 +279,102 @@ export default function DynamicStoryGenerator() {
         <div className="mt-8">
           <h2 className="text-2xl font-bold text-rose-500">Generated Stories</h2>
           <div className="space-y-6">
-            {storyPlans.map((plan, index) => (
-              <Card key={index} className="shadow-md border">
-                <CardHeader>
-                  <CardTitle className="text-xl font-bold">Story {index + 1}</CardTitle>
-                </CardHeader>
-                <CardContent className="prose max-w-none">
-                  <ReactMarkdown>{plan}</ReactMarkdown>
-                </CardContent>
-              </Card>
-            ))}
+          {storyPlans.map((plan, index) => (
+  <Card key={index} className="shadow-md border">
+    <CardHeader>
+      <CardTitle className="text-xl font-bold">Story {index + 1}</CardTitle>
+    </CardHeader>
+    <CardContent className="prose max-w-none">
+      <ReactMarkdown>{plan}</ReactMarkdown>
+    </CardContent>
+    <div className="p-4 flex justify-end">
+      <Button
+        onClick={() => handleDownloadPDF(plan, index)}
+        className="bg-blue-500 hover:bg-blue-600 text-white"
+      >
+        Download PDF
+      </Button>
+    </div>
+  </Card>
+))}
+
           </div>
         </div>
       )}
+      {storyHistory.length > 0 && (
+  <div className="mt-8">
+    <h2 className="text-2xl font-bold text-rose-500 mb-4">Story History</h2>
+    <div className="overflow-x-auto">
+      <table className="w-full border-collapse border border-gray-300">
+        <thead>
+          <tr className="bg-gray-200">
+            <th className="border border-gray-300 px-4 py-2">Topic</th>
+            <th className="border border-gray-300 px-4 py-2">Country</th>
+            <th className="border border-gray-300 px-4 py-2">Board</th>
+            <th className="border border-gray-300 px-4 py-2">Subject</th>
+            <th className="border border-gray-300 px-4 py-2">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {storyHistory.map((story) => (
+            <React.Fragment key={story.id}>
+              {/* Story Row */}
+              <tr className="hover:bg-gray-100">
+                <td className="border border-gray-300 px-4 py-2 font-semibold">
+                  {story.topic}
+                </td>
+                <td className="border border-gray-300 px-4 py-2">{story.country}</td>
+                <td className="border border-gray-300 px-4 py-2">{story.board}</td>
+                <td className="border border-gray-300 px-4 py-2">{story.subject}</td>
+                <td className="border border-gray-300 px-4 py-2 text-center space-x-2">
+                  <Button
+                    onClick={() => setExpandedStory(expandedStory === story.id ? null : story.id)}
+                    className="bg-green-500 hover:bg-green-600 text-white px-3"
+                  >
+                    {expandedStory === story.id ? "Collapse" : "Expand"}
+                  </Button>
+                  <Button
+                    onClick={async () => {
+                      if (await deleteStory(story.id)) {
+                        setStoryHistory((prev) => prev.filter((s) => s.id !== story.id));
+                      }
+                    }}
+                    className="bg-red-500 hover:bg-red-600 text-white px-3"
+                  >
+                    Delete
+                  </Button>
+                </td>
+              </tr>
+
+              {/* Expanded Story Card */}
+              {expandedStory === story.id && (
+                <tr>
+                  <td colSpan={5} className="border border-gray-300 px-4 py-4 bg-gray-50">
+                    <div className="p-4 shadow-md border rounded-md">
+                      <h3 className="text-lg font-bold">{story.topic} - {story.country}</h3>
+                      <p className="text-sm text-gray-500">Board: {story.board} | Subject: {story.subject}</p>
+                      <div className="prose max-w-none mt-3">
+                        <ReactMarkdown>{story.content}</ReactMarkdown>
+                      </div>
+                      <div className="mt-4 flex justify-end">
+                        <Button
+                          onClick={() => handleDownloadPDF(story.content, story.id)}
+                          className="bg-blue-500 hover:bg-blue-600 text-white"
+                        >
+                          Download PDF
+                        </Button>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              )}
+            </React.Fragment>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+)}
     </div>
   );
 }

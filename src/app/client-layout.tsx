@@ -60,7 +60,7 @@ export default function ClientLayout({
         enableSystem
         disableTransitionOnChange
       >
-        {showSidebar && (console.log("Rendering Sidebar"), <AppSidebar />)}
+        {showSidebar && (<AppSidebar />)}
         <main className="flex-1 flex flex-col">
           <div>{children}</div>
         </main>
