@@ -351,7 +351,7 @@ const handleDownloadPDF = (story: string, index: number) => {
                 <tr>
                   <td colSpan={5} className="border border-gray-300 px-4 py-4 bg-gray-50">
                     <div className="p-4 shadow-md border rounded-md">
-                      <h3 className="text-lg font-bold">{story.topic} - {story.country}</h3>
+                      <h3 className="text-lg font-bold">{story.topic}</h3>
                       <p className="text-sm text-gray-500">Board: {story.board} | Subject: {story.subject}</p>
                       <div className="prose max-w-none mt-3">
                         <ReactMarkdown>{story.content}</ReactMarkdown>
