@@ -29,6 +29,7 @@ import { fetchStoryHistory } from "../actions/generateStory";
 import { useEffect } from "react"; // Import useEffect at the top
 import { deleteStory } from "../actions/generateStory";
 import React from "react";
+import { Trash2 } from "lucide-react";
 
 export default function DynamicStoryGenerator() {
   const router = useRouter();
@@ -290,7 +291,7 @@ const handleDownloadPDF = (story: string, index: number) => {
     <div className="p-4 flex justify-end">
       <Button
         onClick={() => handleDownloadPDF(plan, index)}
-        className="bg-blue-500 hover:bg-blue-600 text-white"
+        className="bg-[#f43f5e] hover:bg-[#e11d48] text-white"
       >
         Download PDF
       </Button>
@@ -333,16 +334,18 @@ const handleDownloadPDF = (story: string, index: number) => {
                   >
                     {expandedStory === story.id ? "Collapse" : "Expand"}
                   </Button>
-                  <Button
-                    onClick={async () => {
-                      if (await deleteStory(story.id)) {
-                        setStoryHistory((prev) => prev.filter((s) => s.id !== story.id));
-                      }
-                    }}
-                    className="bg-red-500 hover:bg-red-600 text-white px-3"
-                  >
-                    Delete
-                  </Button>
+                  <button
+  onClick={async () => {
+    if (await deleteStory(story.id)) {
+      setStoryHistory((prev) => prev.filter((s) => s.id !== story.id));
+    }
+  }}
+  className="text-red-500 hover:text-red-700"
+  aria-label="Delete Story"
+>
+  <Trash2 size={20} />
+</button>
+
                 </td>
               </tr>
 
@@ -359,7 +362,7 @@ const handleDownloadPDF = (story: string, index: number) => {
                       <div className="mt-4 flex justify-end">
                         <Button
                           onClick={() => handleDownloadPDF(story.content, story.id)}
-                          className="bg-blue-500 hover:bg-blue-600 text-white"
+                          className="bg-[#f43f5e] hover:bg-[#e11d48] text-white"
                         >
                           Download PDF
                         </Button>
