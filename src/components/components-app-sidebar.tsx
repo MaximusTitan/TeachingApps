@@ -47,11 +47,8 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { signOutAction } from "@/actions";
 import newLogo from "@/public/newLogo.png";
 import airsStar from "@/public/airsStar.png";
-import { stat } from "fs";
-import { title } from "process";
 import { usePathname } from "next/navigation";
 
 export function AppSidebar() {
@@ -247,13 +244,7 @@ export function AppSidebar() {
                   </form>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
-                  <form
-                    onSubmit={async (e) => {
-                      e.preventDefault();
-                      await signOutAction();
-                    }}
-                    className="w-full"
-                  >
+                  <form>
                     <button type="submit" className="flex w-full items-center">
                       <LogOut className="mr-2 h-4 w-4" />
                       <span>Sign out</span>

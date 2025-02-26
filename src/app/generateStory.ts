@@ -6,7 +6,7 @@ export async function generateStory(inputs: {
   board: string;
   subject: string;
 }) {
-  const response = await fetch("/api/story-generator", {
+  const response = await fetch("/api", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
