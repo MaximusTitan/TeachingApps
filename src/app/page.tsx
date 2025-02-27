@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import jsPDF from "jspdf";
-import { Trash2, AlertCircle } from "lucide-react";
+import { Trash2, AlertCircle,Eye,EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -67,6 +67,7 @@ export default function Home() {
         country,
         board,
         subject,
+        grade
       });
       setStoryPlans((prev) => [...prev, story]);
     } catch (error) {
@@ -224,9 +225,15 @@ export default function Home() {
                 </div>
               </div>
 
-              <Button type="submit" disabled={isLoading} className="w-fit h-10 text-base font-semibold bg-rose-500 hover:bg-rose-600">
-                {isLoading ? "Generating Story..." : "Generate Story Plan"}
-              </Button>
+              <Button 
+  type="submit" 
+  disabled={isLoading} 
+  className="w-fit h-10 text-base font-semibold bg-[#f43f5e] hover:bg-[#e11d48] active:scale-95 transition-all rounded-full shadow-md hover:shadow-lg"
+>
+  {isLoading ? "Generating Story..." : "Generate Story"}
+</Button>
+
+
             </CardContent>
           </Card>
         </form>
@@ -235,21 +242,28 @@ export default function Home() {
           <div className="mt-8">
             <h2 className="text-2xl font-bold text-rose-500">Generated Stories</h2>
             <div className="space-y-6">
-              {storyPlans.map((plan, index) => (
-                <Card key={index} className="shadow-md border">
-                  <CardHeader>
-                    <CardTitle className="text-xl font-bold">Story {index + 1}</CardTitle>
-                  </CardHeader>
-                  <CardContent className="prose max-w-none">
-                    <ReactMarkdown>{plan}</ReactMarkdown>
-                  </CardContent>
-                  <div className="p-4 flex justify-end">
-                    <Button onClick={() => handleDownloadPDF(plan, index)} className="bg-[#f43f5e] hover:bg-[#e11d48] text-white">
-                      Download PDF
-                    </Button>
-                  </div>
-                </Card>
-              ))}
+            {storyPlans.map((plan, index) => (
+  <Card key={index} className="shadow-lg border border-pink-300 bg-gradient-to-br from-pink-100 to-pink-200 rounded-xl hover:scale-[1.02] transition-transform duration-300">
+    <CardHeader className="pb-2">
+  {/* Removed title to avoid "Story X" heading */}
+</CardHeader>
+
+<CardContent className="prose max-w-none text-gray-700">
+  <ReactMarkdown>{plan}</ReactMarkdown>
+  
+  <div className="mt-4 flex justify-start">
+    <button 
+      onClick={() => handleDownloadPDF(plan, index)} 
+      className="bg-white border border-pink-400 text-pink-500 hover:bg-pink-200 px-3 py-1 rounded-full transition"
+    >
+      Download PDF
+    </button>
+  </div>
+</CardContent>
+
+  </Card>
+))}
+
             </div>
           </div>
         )}
@@ -258,66 +272,75 @@ export default function Home() {
           <div className="mt-8">
             <h2 className="text-2xl font-bold text-rose-500 mb-4">Story History</h2>
             <div className="overflow-x-auto">
-              <table className="w-full border-collapse border border-gray-300">
-                <thead>
-                  <tr className="bg-gray-200">
-                    <th className="border border-gray-300 px-4 py-2">Topic</th>
-                    <th className="border border-gray-300 px-4 py-2">Country</th>
-                    <th className="border border-gray-300 px-4 py-2">Board</th>
-                    <th className="border border-gray-300 px-4 py-2">Subject</th>
-                    <th className="border border-gray-300 px-4 py-2">Actions</th>
-                  </tr>
-                </thead>
+            <table className="w-full border-collapse border border-pink-300 shadow-lg rounded-lg overflow-hidden">
+
+            <thead>
+  <tr className="bg-[#f43f5e] text-white">
+    <th className="border border-gray-300 px-4 py-2">Topic</th>
+    <th className="border border-gray-300 px-4 py-2">Grade</th>
+    <th className="border border-gray-300 px-4 py-2">Board</th>
+    <th className="border border-gray-300 px-4 py-2">Subject</th>
+    <th className="border border-gray-300 px-4 py-2">Actions</th>
+  </tr>
+</thead>
+
                 <tbody>
                   {storyHistory.map((story) => (
                     <React.Fragment key={story.id}>
-                      <tr className="hover:bg-gray-100">
+                      <tr className="hover:bg-pink-100 transition-all duration-300">
                         <td className="border border-gray-300 px-4 py-2 font-semibold">{story.topic}</td>
-                        <td className="border border-gray-300 px-4 py-2">{story.country}</td>
+                        <td className="border border-gray-300 px-4 py-2">{story.grade}</td>
                         <td className="border border-gray-300 px-4 py-2">{story.board}</td>
                         <td className="border border-gray-300 px-4 py-2">{story.subject}</td>
                         <td className="border border-gray-300 px-4 py-2 text-center space-x-2">
-                          <Button
-                            onClick={() => setExpandedStory(expandedStory === story.id ? null : story.id)}
-                            className="bg-green-500 hover:bg-green-600 text-white px-3"
-                          >
-                            {expandedStory === story.id ? "Collapse" : "Expand"}
-                          </Button>
-                          <button
-                            onClick={async () => {
-                              if (await deleteStory(story.id)) {
-                                setStoryHistory((prev) => prev.filter((s) => s.id !== story.id));
-                              }
-                            }}
-                            className="text-red-500 hover:text-red-700"
-                            aria-label="Delete Story"
-                          >
-                            <Trash2 size={20} />
-                          </button>
+                        <Button
+  onClick={() => setExpandedStory(expandedStory === story.id ? null : story.id)}
+  className="bg-white hover:bg-white text-[#e11d48] px-3 rounded-full shadow-md"
+>
+  {expandedStory === story.id ? <EyeOff size={20} /> : <Eye size={20} />}
+</Button>
+
+
+
+<button
+  onClick={async () => {
+    if (await deleteStory(story.id)) {
+      setStoryHistory((prev) => prev.filter((s) => s.id !== story.id));
+    }
+  }}
+  className="text-[#f43f5e] hover:text-[#e11d48] transition-all"
+  aria-label="Delete Story"
+>
+  <Trash2 size={20} />
+</button>
+
+
                         </td>
                       </tr>
 
                       {expandedStory === story.id && (
-                        <tr>
-                          <td colSpan={5} className="border border-gray-300 px-4 py-4 bg-gray-50">
-                            <div className="p-4 shadow-md border rounded-md">
-                              <h3 className="text-lg font-bold">{story.topic}</h3>
-                              <p className="text-sm text-gray-500">Board: {story.board} | Subject: {story.subject}</p>
-                              <div className="prose max-w-none mt-3">
-                                <ReactMarkdown>{story.content}</ReactMarkdown>
-                              </div>
-                              <div className="mt-4 flex justify-end">
-                                <Button
-                                  onClick={() => handleDownloadPDF(story.content, story.id)}
-                                  className="bg-[#f43f5e] hover:bg-[#e11d48] text-white"
-                                >
-                                  Download PDF
-                                </Button>
-                              </div>
-                            </div>
-                          </td>
-                        </tr>
-                      )}
+  <tr className="transition-all duration-500 ease-in-out bg-pink-50 border-t border-pink-300">
+    <td colSpan={5} className="border border-pink-300 px-4 py-4 bg-white rounded-lg shadow-md hover:shadow-lg">
+      <div className="p-4 bg-white border-2 border-pink-300 rounded-xl shadow-md hover:shadow-lg transition-all">
+        <h3 className="text-lg font-bold text-pink-600">{story.topic}</h3>
+        <p className="text-sm text-gray-500">Board: {story.board} | Subject: {story.subject}</p>
+        <div className="prose max-w-none mt-3 text-gray-700">
+          <ReactMarkdown>{story.content}</ReactMarkdown>
+        </div>
+        <div className="mt-4 flex justify-end">
+        <Button 
+  onClick={() => handleDownloadPDF(story.content, story.id)} 
+  className="bg-[#f43f5e] text-white border border-[#e11d48] hover:bg-[#e11d48] hover:border-[#d10b3f] px-3 py-1 rounded-full transition"
+>
+  Download PDF
+</Button>
+
+        </div>
+      </div>
+    </td>
+  </tr>
+)}
+
                     </React.Fragment>
                   ))}
                 </tbody>

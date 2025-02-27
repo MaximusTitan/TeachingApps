@@ -5,6 +5,7 @@ export async function generateStory(inputs: {
   country: string;
   board: string;
   subject: string;
+  grade: string;
 }) {
   const response = await fetch("/api", {
     method: "POST",
@@ -26,6 +27,7 @@ export async function generateStory(inputs: {
     {
       topic: inputs.message,
       storyline: inputs.storyline || null,
+      grade: inputs.grade,
       country: inputs.country,
       board: inputs.board,
       subject: inputs.subject,
@@ -43,9 +45,10 @@ export async function generateStory(inputs: {
 };
 export async function fetchStoryHistory() {
   const { data, error } = await supabase
-    .from("stories")
-    .select("*")
-    .order("created_at", { ascending: false });
+  .from("stories")
+  .select("id, topic, grade, board, subject, content, created_at")
+  .order("created_at", { ascending: false });
+
 
   if (error) {
     console.error("❌ Error fetching stories:", error.message);
