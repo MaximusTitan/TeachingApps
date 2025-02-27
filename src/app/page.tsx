@@ -1,101 +1,209 @@
-import Image from "next/image";
+// src/app/page.tsx
+'use client';
 
-export default function Home() {
+import { useState } from 'react';
+import { countries, boardsByCountry, subjects, gradeLevels, engagementLevels } from '@/app/constant';
+import { generateDiscussionPrompt, DiscussionPromptRequest } from './api';
+import './globals.css';
+
+export default function DiscussionPromptGenerator() {
+  const [selectedCountry, setSelectedCountry] = useState(countries[0]);
+  const [selectedBoard, setSelectedBoard] = useState(boardsByCountry[countries[0].value][0]);
+  const [selectedSubject, setSelectedSubject] = useState(subjects[0]);
+  const [selectedGradeLevel, setSelectedGradeLevel] = useState(gradeLevels[0]);
+  const [topic, setTopic] = useState('');
+  const [timeLimit, setTimeLimit] = useState(30);
+  const [selectedEngagementLevel, setSelectedEngagementLevel] = useState(engagementLevels[0]);
+  
+  const [generatedPrompt, setGeneratedPrompt] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleCountryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const countryValue = e.target.value;
+    const country = countries.find(c => c.value === countryValue) || countries[0];
+    setSelectedCountry(country);
+    setSelectedBoard(boardsByCountry[country.value][0]);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!topic.trim()) {
+      setError('Please enter a topic for discussion');
+      return;
+    }
+
+    setIsLoading(true);
+    setError('');
+    
+    try {
+      const promptData: DiscussionPromptRequest = {
+        country: selectedCountry,
+        board: selectedBoard,
+        subject: selectedSubject,
+        gradeLevel: selectedGradeLevel,
+        topic: topic,
+        timeLimit: timeLimit,
+        engagementLevel: selectedEngagementLevel
+      };
+      
+      const result = await generateDiscussionPrompt(promptData);
+      setGeneratedPrompt(result);
+    } catch (error) {
+      console.error('Failed to generate prompt:', error);
+      setError('Failed to generate discussion prompt. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <div className="container">
+      <h1>Discussion Prompt Generator</h1>
+      
+      <div className="form-container">
+        <form onSubmit={handleSubmit}>
+          <div className="form-grid">
+            {/* Country Selection */}
+            <div className="form-group">
+              <label htmlFor="country">Country</label>
+              <select
+                id="country"
+                value={selectedCountry.value}
+                onChange={handleCountryChange}
+              >
+                {countries.map((country) => (
+                  <option key={country.value} value={country.value}>{country.label}</option>
+                ))}
+              </select>
+            </div>
+            
+            {/* Educational Board Selection */}
+            <div className="form-group">
+              <label htmlFor="board">Educational Board</label>
+              <select
+                id="board"
+                value={selectedBoard.value}
+                onChange={(e) => {
+                  const boardValue = e.target.value;
+                  const board = boardsByCountry[selectedCountry.value].find(b => b.value === boardValue) || boardsByCountry[selectedCountry.value][0];
+                  setSelectedBoard(board);
+                }}
+              >
+                {boardsByCountry[selectedCountry.value].map((board) => (
+                  <option key={board.value} value={board.value}>{board.label}</option>
+                ))}
+              </select>
+            </div>
+            
+            {/* Subject Selection */}
+            <div className="form-group">
+              <label htmlFor="subject">Subject</label>
+              <select
+                id="subject"
+                value={selectedSubject.value}
+                onChange={(e) => {
+                  const subjectValue = e.target.value;
+                  const subject = subjects.find(s => s.value === subjectValue) || subjects[0];
+                  setSelectedSubject(subject);
+                }}
+              >
+                {subjects.map((subject) => (
+                  <option key={subject.value} value={subject.value}>{subject.label}</option>
+                ))}
+              </select>
+            </div>
+            
+            {/* Grade Level Selection */}
+            <div className="form-group">
+              <label htmlFor="gradeLevel">Grade Level</label>
+              <select
+                id="gradeLevel"
+                value={selectedGradeLevel.value}
+                onChange={(e) => {
+                  const gradeLevelValue = e.target.value;
+                  const gradeLevel = gradeLevels.find(g => g.value === gradeLevelValue) || gradeLevels[0];
+                  setSelectedGradeLevel(gradeLevel);
+                }}
+              >
+                {gradeLevels.map((grade) => (
+                  <option key={grade.value} value={grade.value}>{grade.label}</option>
+                ))}
+              </select>
+            </div>
+            
+            {/* Topic Input */}
+            <div className="form-group">
+              <label htmlFor="topic">Topic for Discussion</label>
+              <input
+                type="text"
+                id="topic"
+                value={topic}
+                onChange={(e) => setTopic(e.target.value)}
+                placeholder="Enter discussion topic"
+                required
+              />
+            </div>
+            
+            {/* Time Limit Input */}
+            <div className="form-group">
+              <label htmlFor="timeLimit">
+                Time Limit (minutes): {timeLimit}
+              </label>
+              <div className="range-container">
+                <input
+                  type="range"
+                  id="timeLimit"
+                  min="5"
+                  max="180"
+                  step="5"
+                  value={timeLimit}
+                  onChange={(e) => setTimeLimit(Number(e.target.value))}
+                />
+                <div className="range-labels">
+                  <span>5 min</span>
+                  <span>180 min</span>
+                </div>
+              </div>
+            </div>
+            
+            {/* Engagement Level Selection */}
+            <div className="form-group">
+              <label htmlFor="engagementLevel">Engagement Level</label>
+              <select
+                id="engagementLevel"
+                value={selectedEngagementLevel.value}
+                onChange={(e) => {
+                  const levelValue = e.target.value;
+                  const level = engagementLevels.find(l => l.value === levelValue) || engagementLevels[0];
+                  setSelectedEngagementLevel(level);
+                }}
+              >
+                {engagementLevels.map((level) => (
+                  <option key={level.value} value={level.value}>{level.label}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+          
+          {error && <p className="error">{error}</p>}
+          
+          <button 
+            type="submit" 
+            disabled={isLoading}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            {isLoading ? 'Generating...' : 'Generate Prompt'}
+          </button>
+        </form>
+      </div>
+      
+      {generatedPrompt && (
+        <div className="result-container">
+          <h2>Generated Discussion Prompt</h2>
+          <div className="whitespace-pre-wrap">{generatedPrompt}</div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      )}
     </div>
   );
 }
