@@ -16,7 +16,7 @@ export async function generateDiscussionPrompt(promptData: DiscussionPromptReque
           'Authorization': `Bearer ${API_KEY}`
         },
         body: JSON.stringify({
-          model: "gpt-4",
+          model: "llama3-8b-8192",
           messages: [
             {
               role: "system",
