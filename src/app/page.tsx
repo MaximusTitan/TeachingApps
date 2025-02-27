@@ -36,8 +36,14 @@ export default function DiscussionPromptGenerator() {
 
     setIsLoading(true);
     setError('');
+    setGeneratedPrompt('');
     
     try {
+      // Check for environment variables
+      if (!process.env.NEXT_PUBLIC_API_URL || !process.env.NEXT_PUBLIC_API_KEY) {
+        throw new Error('API configuration is missing. Please check your environment variables.');
+      }
+      
       const promptData: DiscussionPromptRequest = {
         country: selectedCountry,
         board: selectedBoard,
@@ -50,9 +56,9 @@ export default function DiscussionPromptGenerator() {
       
       const result = await generateDiscussionPrompt(promptData);
       setGeneratedPrompt(result);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to generate prompt:', error);
-      setError('Failed to generate discussion prompt. Please try again.');
+      setError(error.message || 'Failed to generate discussion prompt. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -192,6 +198,7 @@ export default function DiscussionPromptGenerator() {
           <button 
             type="submit" 
             disabled={isLoading}
+            className="submit-button"
           >
             {isLoading ? 'Generating...' : 'Generate Prompt'}
           </button>
