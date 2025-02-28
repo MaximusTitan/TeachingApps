@@ -46,7 +46,7 @@ export async function POST(req: Request) {
 
       ### Story Structure:
 
-      **Title**: Create a catchy title based on the story.
+      **Title: Create a catchy title based on the story.**
       
       - Start with an engaging hook: "Imagine we're traveling to ${country}..." or "Once upon a time, in the vibrant land of ${country}, there was..."
       - Introduce the main characters and setting.

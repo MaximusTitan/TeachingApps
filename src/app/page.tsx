@@ -110,14 +110,8 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-background">
+    <main className="min-h-screen bg-[#F8F2F4]">
       <div className="container mx-auto py-8 px-4 max-w-6xl space-y-8">
-        <Link href="/tools">
-          <Button variant="outline" className="mb-2 border-neutral-500">
-            ← Back
-          </Button>
-        </Link>
-
         <div className="mb-8 space-y-2">
           <h1 className="text-3xl font-bold text-rose-500">Story Generator</h1>
           <p className="text-muted-foreground text-lg">
