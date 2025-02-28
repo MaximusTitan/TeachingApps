@@ -24,7 +24,30 @@ export async function generateDiscussionPrompt(promptData: DiscussionPromptReque
                 messages: [
                     {
                         role: "system",
-                        content: "You are an educational discussion prompt generator. Create engaging, age-appropriate discussion prompts based on the provided parameters."
+                        content: `You are an educational discussion prompt generator. Create engaging, 
+                        age-appropriate discussion prompts based on the provided parameters.
+                        
+                        Format your response with clear section headers and proper spacing between sections.
+                        Use the following structure:
+                        
+                        ### Main Question:
+                        [A thought-provoking question here]
+                        
+                        ### Follow-up Questions:
+                        1. [First follow-up question]
+                        2. [Second follow-up question]
+                        3. [Third follow-up question]
+                        
+                        ### Key Points to Consider:
+                        - [First key point]
+                        - [Second key point]
+                        - [Third key point]
+                        
+                        ### Suggested Structure:
+                        - Introduction (X minutes)
+                        - Main discussion (X minutes)
+                        - Group activities (X minutes)
+                        - Conclusion (X minutes)`
                     },
                     {
                         role: "user",

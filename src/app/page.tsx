@@ -14,6 +14,7 @@ export default function DiscussionPromptGenerator() {
     const [timeLimit, setTimeLimit] = useState(30);
 
     const [generatedPrompt, setGeneratedPrompt] = useState('');
+    const [viewedPrompt, setViewedPrompt] = useState('');
     const [discussionHistory, setDiscussionHistory] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
@@ -41,6 +42,7 @@ export default function DiscussionPromptGenerator() {
         setIsLoading(true);
         setError('');
         setGeneratedPrompt('');
+        setViewedPrompt('');
 
         try {
             const promptData = {
@@ -71,14 +73,38 @@ export default function DiscussionPromptGenerator() {
         try {
             await deleteDiscussionPrompt(id);
             setDiscussionHistory(discussionHistory.filter((item) => item.id !== id));
+            
+            // If the currently viewed prompt was deleted, clear it
+            if (viewedPrompt && discussionHistory.find(item => item.id === id)?.generated_prompts === viewedPrompt) {
+                setViewedPrompt('');
+            }
         } catch (error) {
             console.error('Error deleting:', error);
         }
     };
 
+    const handleView = (prompt: string) => {
+        setViewedPrompt(prompt);
+        setGeneratedPrompt(''); // Clear the generated prompt when viewing history
+    };
+
+    const formatPromptForDisplay = (promptText) => {
+        if (!promptText) return '';
+        
+        // Replace numbered list patterns with proper markdown formatting
+        let formattedText = promptText
+            .replace(/(\d+\.\s*[^\n]+)/g, '\n$1\n') // Add newlines around numbered items
+            .replace(/([A-Za-z]+:)/g, '\n\n**$1**') // Bold section headers
+            .replace(/(Key Points to Consider|Follow-up Questions|Main Question|Suggested Structure):/g, '\n\n### $1:\n') // Format main sections as headers
+            .replace(/\n{3,}/g, '\n\n'); // Remove excessive newlines
+        
+        return formattedText;
+    };
+
     return (
         <div className="container mx-auto p-6">
             <h1 className="text-2xl font-bold mb-4">Discussion Prompt Generator</h1>
+            <p className="text-gray-600 mb-6">Spark insightful discussions and critical thinking with AI-generated prompts tailored for students.</p>
             
             <form onSubmit={handleSubmit} className="bg-white shadow-md rounded p-6 mb-6">
                 <div className="grid grid-cols-2 gap-4">
@@ -177,29 +203,52 @@ export default function DiscussionPromptGenerator() {
                 {error && <p className="text-red-500 mt-2">{error}</p>}
             </form>
 
-            {generatedPrompt && (
-                <div className="bg-gray-100 p-4 rounded shadow mb-6">
-                    <h2 className="text-xl font-bold mb-2">Generated Prompt</h2>
-                    <p>{generatedPrompt}</p>
+            {/* Display current prompt */}
+            {(generatedPrompt || viewedPrompt) && (
+                <div className="bg-gray-100 p-6 rounded shadow mb-6">
+                    <h2 className="text-xl font-bold mb-4">
+                        {generatedPrompt ? 'Generated Prompt' : 'Viewing Saved Prompt'}
+                    </h2>
+                    <div className="whitespace-pre-line prose prose-sm max-w-none">
+                        {formatPromptForDisplay(generatedPrompt || viewedPrompt)}
+                    </div>
                 </div>
             )}
 
             <h2 className="text-xl font-bold mb-4">Discussion History</h2>
-            <ul className="bg-white shadow-md rounded p-6">
+            <div className="bg-white shadow-md rounded p-6">
                 {discussionHistory.length > 0 ? (
-                    discussionHistory.map((item) => (
-                        <li key={item.id} className="flex justify-between items-center p-2 border-b">
-                            <div>
-                                <p className="font-medium">{item.topic}</p>
-                                <small className="text-gray-500">{new Date(item.created_at).toLocaleString()}</small>
-                            </div>
-                            <button onClick={() => handleDelete(item.id)} className="text-red-600">Delete</button>
-                        </li>
-                    ))
+                    <ul className="divide-y">
+                        {discussionHistory.map((item) => (
+                            <li key={item.id} className="py-4 flex justify-between items-center">
+                                <div>
+                                    <p className="font-medium">{item.topic}</p>
+                                    <div className="text-sm text-gray-500">
+                                        <span>{item.subject} | {item.grade_level} | {item.time_limit} min</span>
+                                        <p className="mt-1">{new Date(item.created_at).toLocaleString()}</p>
+                                    </div>
+                                </div>
+                                <div className="flex space-x-2">
+                                    <button 
+                                        onClick={() => handleView(item.generated_prompts)}
+                                        className="px-3 py-1 text-blue-600 border border-blue-600 rounded hover:bg-blue-50"
+                                    >
+                                        View
+                                    </button>
+                                    <button 
+                                        onClick={() => handleDelete(item.id)} 
+                                        className="px-3 py-1 text-red-600 border border-red-600 rounded hover:bg-red-50"
+                                    >
+                                        Delete
+                                    </button>
+                                </div>
+                            </li>
+                        ))}
+                    </ul>
                 ) : (
                     <p>No discussion prompts found.</p>
                 )}
-            </ul>
+            </div>
         </div>
     );
 }
