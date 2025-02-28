@@ -2,92 +2,100 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Define color scheme for light mode by default */
 :root {
   color-scheme: light;
 }
 
+/* Base layer: Define custom CSS variables for light and dark themes */
 @layer base {
+  /* Default light theme variables */
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
-    --primary: 0 0% 9%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
-    --radius: 0.5rem;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --background: 0 0% 100%; /* White background */
+    --foreground: 0 0% 3.9%; /* Very dark gray text */
+    --card: 0 0% 100%; /* White card background */
+    --card-foreground: 0 0% 3.9%; /* Very dark gray card text */
+    --popover: 0 0% 100%; /* White popover background */
+    --popover-foreground: 0 0% 3.9%; /* Very dark gray popover text */
+    --primary: 0 0% 9%; /* Very dark gray primary color */
+    --primary-foreground: 0 0% 98%; /* Very light gray primary text */
+    --secondary: 0 0% 96.1%; /* Light gray secondary color */
+    --secondary-foreground: 0 0% 9%; /* Very dark gray secondary text */
+    --muted: 0 0% 96.1%; /* Light gray muted color */
+    --muted-foreground: 0 0% 45.1%; /* Medium gray muted text */
+    --accent: 0 0% 96.1%; /* Light gray accent color */
+    --accent-foreground: 0 0% 9%; /* Very dark gray accent text */
+    --destructive: 0 84.2% 60.2%; /* Light red destructive color */
+    --destructive-foreground: 0 0% 98%; /* Very light gray destructive text */
+    --border: 0 0% 89.8%; /* Light gray border color */
+    --input: 0 0% 89.8%; /* Light gray input background */
+    --ring: 0 0% 3.9%; /* Very dark gray ring color */
+    --radius: 0.5rem; /* Default border radius */
+    --chart-1: 12 76% 61%; /* Chart color 1 */
+    --chart-2: 173 58% 39%; /* Chart color 2 */
+    --chart-3: 197 37% 24%; /* Chart color 3 */
+    --chart-4: 43 74% 66%; /* Chart color 4 */
+    --chart-5: 27 87% 67%; /* Chart color 5 */
+    --sidebar-background: 0 0% 98%; /* Very light gray sidebar background */
+    --sidebar-foreground: 240 5.3% 26.1%; /* Darker gray sidebar text */
+    --sidebar-primary: 240 5.9% 10%; /* Very dark gray sidebar primary color */
+    --sidebar-primary-foreground: 0 0% 98%; /* Very light gray sidebar primary text */
+    --sidebar-accent: 240 4.8% 95.9%; /* Light gray sidebar accent */
+    --sidebar-accent-foreground: 240 5.9% 10%; /* Very dark gray sidebar accent text */
+    --sidebar-border: 220 13% 91%; /* Light gray sidebar border */
+    --sidebar-ring: 217.2 91.2% 59.8%; /* Blue ring color for sidebar focus */
   }
 
+  /* Dark theme variables, applied when .dark class is present */
   .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --background: 0 0% 3.9%; /* Very dark gray background */
+    --foreground: 0 0% 98%; /* Very light gray text */
+    --card: 0 0% 3.9%; /* Very dark gray card background */
+    --card-foreground: 0 0% 98%; /* Very light gray card text */
+    --popover: 0 0% 3.9%; /* Very dark gray popover background */
+    --popover-foreground: 0 0% 98%; /* Very light gray popover text */
+    --primary: 0 0% 98%; /* Very light gray primary color */
+    --primary-foreground: 0 0% 9%; /* Very dark gray primary text */
+    --secondary: 0 0% 14.9%; /* Darker gray secondary color */
+    --secondary-foreground: 0 0% 98%; /* Very light gray secondary text */
+    --muted: 0 0% 14.9%; /* Darker gray muted color */
+    --muted-foreground: 0 0% 63.9%; /* Medium gray muted text */
+    --accent: 0 0% 14.9%; /* Darker gray accent color */
+    --accent-foreground: 0 0% 98%; /* Very light gray accent text */
+    --destructive: 0 62.8% 30.6%; /* Darker red destructive color */
+    --destructive-foreground: 0 0% 98%; /* Very light gray destructive text */
+    --border: 0 0% 14.9%; /* Darker gray border color */
+    --input: 0 0% 14.9%; /* Darker gray input background */
+    --ring: 0 0% 83.1%; /* Light gray ring color */
+    --chart-1: 220 70% 50%; /* Chart color 1 for dark mode */
+    --chart-2: 160 60% 45%; /* Chart color 2 for dark mode */
+    --chart-3: 30 80% 55%; /* Chart color 3 for dark mode */
+    --chart-4: 280 65% 60%; /* Chart color 4 for dark mode */
+    --chart-5: 340 75% 55%; /* Chart color 5 for dark mode */
+    --sidebar-background: 240 5.9% 10%; /* Very dark gray sidebar background */
+    --sidebar-foreground: 240 4.8% 95.9%; /* Light gray sidebar text */
+    --sidebar-primary: 224.3 76.3% 48%; /* Blue sidebar primary color */
+    --sidebar-primary-foreground: 0 0% 100%; /* White sidebar primary text */
+    --sidebar-accent: 240 3.7% 15.9%; /* Very dark gray sidebar accent */
+    --sidebar-accent-foreground: 240 4.8% 95.9%; /* Light gray sidebar accent text */
+    --sidebar-border: 240 3.7% 15.9%; /* Very dark gray sidebar border */
+    --sidebar-ring: 217.2 91.2% 59.8%; /* Blue ring color for sidebar focus */
   }
 }
 
+/* Base layer: Apply default styles to all elements and body */
 @layer base {
+  /* Apply border-border color to all elements */
   * {
     @apply border-border;
   }
+  /* Apply background and foreground colors to body */
   body {
     @apply bg-background text-foreground;
   }
 }
 
+/* Keyframe animation for fade-in effect */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -99,20 +107,23 @@
   }
 }
 
+/* Apply fade-in animation to elements with animate-fadeIn class */
 .animate-fadeIn {
   animation: fadeIn 0.3s ease-out;
 }
 
+/* Keyframe animation for progress bar */
 @keyframes progress {
   from { width: 0%; }
   to { width: 100%; }
 }
 
+/* Apply progress animation to elements with animate-progress class */
 .animate-progress {
   animation: progress 30s linear;
 }
 
-/* Add markdown-specific styles */
+/* Styles for markdown content using .prose class */
 .prose h1 {
   @apply text-3xl font-bold mb-8 text-center;
 }
@@ -141,6 +152,7 @@
   @apply border-l-4 border-gray-200 pl-4 italic my-4;
 }
 
+/* Override input, textarea, and select background for better consistency */
 input {
   background-color: white !important;
 }
@@ -153,6 +165,7 @@ select {
   background-color: white !important;
 }
 
+/* Media query for print styles */
 @media print {
   /* Hide non-essential elements when printing */
   form,
@@ -177,15 +190,18 @@ select {
     page-break-inside: avoid;
   }
 
+  /* Hide everything except the print-content class */
   body * {
     visibility: hidden;
   }
-  
+
+  /* Make print-content and its children visible */
   .print-content,
   .print-content * {
     visibility: visible;
   }
 
+  /* Position print-content to occupy the entire page */
   .print-content {
     position: absolute;
     left: 0;
@@ -193,11 +209,13 @@ select {
     width: 100%;
   }
 
+  /* Hide elements with no-print class */
   .no-print {
     display: none !important;
   }
 }
 
+/* Keyframe animation for fade-in effect (duplicate, might be removable)*/
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -209,6 +227,7 @@ select {
   }
 }
 
+/* Apply fade-in animation to elements with animate-fade-in class */
 .animate-fade-in {
   animation: fadeIn 0.3s ease-out;
 }
