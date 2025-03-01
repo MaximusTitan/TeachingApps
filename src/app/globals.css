@@ -1,4 +1,8 @@
 /* src/app/globals.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
   --primary-color: #1a73e8;
   --button-background: #ff4081; /* New variable for button background */

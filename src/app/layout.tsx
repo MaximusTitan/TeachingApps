@@ -17,7 +17,7 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="/favicon.ico" />
       </head>
-      <body>
+      <body className="antialiased"> {/* Optional: Add Tailwind classes like `antialiased` for better typography */}
         <main>{children}</main>
       </body>
     </html>
