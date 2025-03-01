@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { generateDiscussionPrompt, fetchDiscussionHistory, deleteDiscussionPrompt } from './api';
 
 // Constants
@@ -168,18 +169,16 @@ export default function DiscussionPromptGenerator() {
         setGeneratedPrompt(''); // Clear the generated prompt when viewing history
     };
 
-    const formatPromptForDisplay = (promptText) => {
-        if (!promptText) return '';
+    const formatPromptForDisplay = (promptText: string) => {
+        if (typeof promptText !== 'string') return ''; 
         
-        // Replace numbered list patterns with proper markdown formatting
-        let formattedText = promptText
+        return promptText
             .replace(/(\d+\.\s*[^\n]+)/g, '\n$1\n') // Add newlines around numbered items
             .replace(/([A-Za-z]+:)/g, '\n\n**$1**') // Bold section headers
-            .replace(/(Key Points to Consider|Follow-up Questions|Main Question|Suggested Structure):/g, '\n\n### $1:\n') // Format main sections as headers
+            .replace(/(Key Points to Consider|Follow-up Questions|Main Question|Suggested Structure):/g, '\n\n### $1:\n') // Format sections as headers
             .replace(/\n{3,}/g, '\n\n'); // Remove excessive newlines
-        
-        return formattedText;
     };
+    
 
     return (
         <div className="container mx-auto p-6">
@@ -283,23 +282,24 @@ export default function DiscussionPromptGenerator() {
                 {error && <p className="text-red-500 mt-2">{error}</p>}
             </form>
 
-            {/* Display current prompt */}
-            {(generatedPrompt || viewedPrompt) && (
-                <div className="bg-gray-100 p-6 rounded shadow mb-6">
-                    <h2 className="text-xl font-bold mb-4">
-                        {generatedPrompt ? 'Generated Prompt' : 'Viewing Saved Prompt'}
-                    </h2>
-                    <div className="whitespace-pre-line prose prose-sm max-w-none">
-                        {formatPromptForDisplay(generatedPrompt || viewedPrompt)}
-                    </div>
-                </div>
-            )}
+           {/* Display current prompt */}
+{(generatedPrompt || viewedPrompt) && (
+    <div className="bg-gray-100 p-6 rounded shadow mb-6">
+        <h2 className="text-xl font-bold mb-4">
+            {generatedPrompt ? 'Generated Prompt' : 'Viewing Saved Prompt'}
+        </h2>
+    <div className="prose prose-sm max-w-none">
+        <ReactMarkdown>{generatedPrompt || viewedPrompt}</ReactMarkdown>
+    </div>
+    </div>
+)}
 
             <h2 className="text-xl font-bold mb-4">Discussion History</h2>
             <div className="bg-white shadow-md rounded p-6">
                 {discussionHistory.length > 0 ? (
                     <ul className="divide-y">
-                        {discussionHistory.map((item) => (
+{discussionHistory.map((item: { id: string; topic: string; subject: string; grade_level: string; time_limit: number; created_at: string; generated_prompts: string; }) => (
+
                             <li key={item.id} className="py-4 flex justify-between items-center">
                                 <div>
                                     <p className="font-medium">{item.topic}</p>

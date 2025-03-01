@@ -1,6 +1,17 @@
 import { createClient } from '@supabase/supabase-js';
 
+type DiscussionPromptRequest = {
+    country: { label: string };
+    board: { label: string };
+    subject: { label: string };
+    gradeLevel: { label: string };
+    topic: string;
+    timeLimit: number;
+    engagementLevel: { label: string };
+};
+
 export async function generateDiscussionPrompt(promptData: DiscussionPromptRequest): Promise<string> {
+
     try {
         const API_URL = process.env.NEXT_PUBLIC_API_URL;
         const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
@@ -24,50 +35,19 @@ export async function generateDiscussionPrompt(promptData: DiscussionPromptReque
                 messages: [
                     {
                         role: "system",
-                        content: `You are an educational discussion prompt generator. Create engaging, 
-                        age-appropriate discussion prompts based on the provided parameters.
-                        
-                        Format your response with clear section headers and proper spacing between sections.
-                        Use the following structure:
-                        
-                        ### Main Question:
-                        [A thought-provoking question here]
-                        
-                        ### Follow-up Questions:
-                        1. [First follow-up question]
-                        2. [Second follow-up question]
-                        3. [Third follow-up question]
-                        
-                        ### Key Points to Consider:
-                        - [First key point]
-                        - [Second key point]
-                        - [Third key point]
-                        
-                        ### Suggested Structure:
-                        - Introduction (X minutes)
-                        - Main discussion (X minutes)
-                        - Group activities (X minutes)
-                        - Conclusion (X minutes)`
+                        content: `You are a discussion prompt generator. Create clear and engaging prompts based on the provided parameters.`
+
                     },
                     {
                         role: "user",
-                        content: `Generate a discussion prompt for a ${promptData.engagementLevel.label} with the following parameters:
-                        - Country/Region: ${promptData.country.label}
-                        - Educational Board: ${promptData.board.label}
-                        - Subject: ${promptData.subject.label}
-                        - Grade Level: ${promptData.gradeLevel.label}
-                        - Topic: ${promptData.topic}
-                        - Time Limit: ${promptData.timeLimit} minutes
-                        
-                        The prompt should include:
-                        1. A thought-provoking main question
-                        2. 3-5 follow-up questions
-                        3. Key points to consider
-                        4. A suggested structure for the discussion based on the time limit`
+                        content: `Generate a discussion prompt for a ${promptData.engagementLevel.label} with the following parameters: Country: ${promptData.country.label}, Board: ${promptData.board.label}, Subject: ${promptData.subject.label}, Grade Level: ${promptData.gradeLevel.label}, Topic: ${promptData.topic}, Time Limit: ${promptData.timeLimit} minutes.`
+
                     }
                 ],
                 temperature: 0.7,
                 max_tokens: 1000
+                
+                
             })
         });
 
@@ -91,7 +71,8 @@ export async function generateDiscussionPrompt(promptData: DiscussionPromptReque
     }
 }
 
-export async function savePromptToHistory(promptData, generatedPrompts) {
+export async function savePromptToHistory(promptData: DiscussionPromptRequest, generatedPrompts: string) {
+
     try {
         const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
         const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_KEY;
@@ -144,7 +125,9 @@ export async function fetchDiscussionHistory() {
         throw new Error('Failed to fetch discussion history');
     }
 
+    console.log("Fetched discussion history:", data);
     return data;
+
 }
 
 export async function deleteDiscussionPrompt(id: string) {

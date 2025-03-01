@@ -1,0 +1,98 @@
+.discussion-container {
+  max-width: 800px;
+  margin: 30px auto;
+  padding: 30px;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  background-color: #f9f9f9;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+}
+
+.title {
+  color: #e91e63;
+  text-align: left;
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 30px;
+}
+
+.discussion-form {
+  display: grid;
+  gap: 16px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.form-group input {
+  padding: 12px;
+  font-size: 18px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+}
+
+.discussion-container button {
+  background-color: #ff4081;
+  padding: 14px;
+  font-size: 18px;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.discussion-container button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.prompt-list,
+.history {
+  margin-top: 30px;
+}
+
+.prompt-list h2,
+.history h2 {
+  font-size: 22px;
+  margin-bottom: 15px;
+}
+
+.prompt-list ul,
+.history ul {
+  padding: 0;
+  list-style-type: none;
+}
+
+.prompt-list li,
+.history li {
+  background: #f1f1f1;
+  padding: 12px;
+  border: 1px solid #e0e0e0;
+  margin-bottom: 10px;
+  border-radius: 8px;
+}
+
+.history li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+}
+
+.history button {
+  padding: 6px 12px;
+  font-size: 14px;
+  background-color: #e53935;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
