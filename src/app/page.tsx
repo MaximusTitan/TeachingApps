@@ -289,7 +289,7 @@ export default function Home() {
                         <td className="border border-gray-300 px-4 py-2 text-center space-x-2">
                         <Button
   onClick={() => setExpandedStory(expandedStory === story.id ? null : story.id)}
-  className="bg-white hover:bg-white text-[#e11d48] px-3 rounded-full shadow-md"
+  className="bg-[#F8F2F4] hover:bg-pink-100 text-[#e11d48] px-3 rounded-full shadow-md"
 >
   {expandedStory === story.id ? <EyeOff size={20} /> : <Eye size={20} />}
 </Button>
