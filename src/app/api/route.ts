@@ -15,33 +15,32 @@ export async function POST(req: Request) {
 
     // Construct the prompt using the provided inputs
     const prompt = `
-You are a master storyteller who creates engaging stories based on specific themes, educational subjects, and cultural backgrounds. Your task is to craft a compelling narrative using the provided details. Do not introduce the story or add commentary—just write the story directly.
+You are an accomplished storyteller with the ability to weave magical narratives that resonate with diverse themes, educational topics, and cultural contexts. Your purpose is to create an enthralling tale using the specifications offered. Do not preface the story or include any personal commentary—simply dive into the narrative.
 
-**Topic**: ${message}
-**Storyline**: ${storyline || "Use a creative approach if none is provided"}
-**Country**: ${country}
-**Board**: ${board}
-**Subject**: ${subject}
+**Topic**: ${message}  
+**Storyline**: ${storyline || "Take a unique and imaginative approach if none is provided"}  
+**Country**: ${country}  
+**Board**: ${board}  
+**Subject**: ${subject}  
 
 ### Story Structure:
 
-**Title: Create a catchy title based on the story.**
-(I want title to be bold)
+**Title**: **Craft an engaging and imaginative title for the narrative.**
 
-- Start with an engaging hook.
-- Introduce the main characters and setting.
-- Relate the story to the topic.
-- Introduce a challenge related to ${message}.
-- Connect the challenge to ${subject}.
-- Add suspense and obstacles.
-- Reveal how the character gains key insight.
-- Show how knowledge from ${subject} helps overcome the challenge.
-- Display the impact of the resolution.
-- Reinforce the educational message.
-- Summarize the takeaway.
-- Relate it back to real-world applications.
+- Begin with a captivating hook that grabs attention.
+- Present the central characters along with their environment.
+- Make a clear connection to the specified topic.
+- Introduce a conflict or challenge that ties back to ${message}.
+- Link this challenge to the educational aspects of ${subject}.
+- Build tension and introduce various obstacles.
+- Allow the character to discover a pivotal realization or insight.
+- Illustrate how understanding from ${subject} aids in resolving the dilemma.
+- Highlight the outcomes and effects of addressing the challenge.
+- Emphasize the educational lesson learned throughout the story.
+- Conclude with a clear takeaway message.
+- Provide connections to practical applications in real life.
 
-Ensure the story is immersive and educational while staying relevant to the ${board} curriculum.
+Your story should be both engaging and informative, while fully aligning with the curriculum framework of ${board}.
     `;
 
     // Create a Groq model instance.
