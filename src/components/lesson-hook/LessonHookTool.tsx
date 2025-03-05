@@ -102,6 +102,7 @@ export default function LessonHookTool() {
   const [history, setHistory] = useState<HookItem[]>([]);
   const [viewingHook, setViewingHook] = useState<HookItem | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const itemsPerPage = 4;
 
   const allFieldsFilled = topic !== '' && objective !== '' && grade !== '' && country !== '' && board !== '' && subject !== '';
@@ -113,30 +114,47 @@ export default function LessonHookTool() {
     currentPage * itemsPerPage
   );
 
-  // Format date function
+  // Format date function - Fixed for proper timezone handling
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: 'numeric',
-      minute: 'numeric'
-    }).format(date);
+    try {
+      const date = new Date(dateString);
+
+      if (isNaN(date.getTime())) {
+        console.error('Invalid date:', dateString);
+        return 'Invalid date';
+      }
+
+      return new Intl.DateTimeFormat('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: true,
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone, // Use the user's time zone
+      }).format(date);
+    } catch (err) {
+      console.error('Error formatting date:', err, dateString);
+      return 'Date error';
+    }
   };
 
-  // Fetch history from Supabase
+  // Fetch history from Supabase with improved error handling
   const fetchHistory = async () => {
     try {
       const { data, error } = await supabase
         .from('lesson_hooks')
         .select('*')
         .order('created_at', { ascending: false });
-      
-      if (error) throw error;
+
+      if (error) {
+        console.error('Supabase fetch error:', error);
+        throw error;
+      }
+
       setHistory(data || []);
-      setCurrentPage(1); // Reset to first page when fetching new data
     } catch (err) {
+      console.error('Fetch history error:', err);
       setError('Failed to fetch history');
     }
   };
@@ -158,14 +176,14 @@ export default function LessonHookTool() {
       const res = await fetch('/api/generate-hook', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          topic, 
-          objective, 
-          grade, 
+        body: JSON.stringify({
+          topic,
+          objective,
+          grade,
           hook_type: hookType,
-          country, 
-          board, 
-          subject 
+          country,
+          board,
+          subject,
         }),
       });
 
@@ -193,7 +211,7 @@ export default function LessonHookTool() {
     if (hook) {
       try {
         await navigator.clipboard.writeText(hook);
-        setMessage("Copied to clipboard!");
+        setMessage('Copied to clipboard!');
         setTimeout(() => setMessage(null), 3000);
       } catch (err) {
         setError('Failed to copy to clipboard');
@@ -244,25 +262,65 @@ export default function LessonHookTool() {
     }
   }, [hook]);
 
-  // Delete hook from history - Fixed function
+  // FIXED: Delete hook from history with optimistic UI update
   const deleteHook = async (id: number) => {
+    if (isDeleting) return; // Prevent multiple deletion attempts
+
+    setIsDeleting(true);
+    setError(null);
+
     try {
+      // Optimistic UI update
+      const hookToDelete = history.find(h => h.id === id);
+      if (!hookToDelete) throw new Error('Hook not found');
+
+      // Update local state immediately (optimistic update)
+      setHistory(history.filter(item => item.id !== id));
+
+      // Close modal if viewing the deleted hook
+      if (viewingHook && viewingHook.id === id) {
+        setViewingHook(null);
+      }
+
+      // Make the delete request to Supabase
       const { error } = await supabase
         .from('lesson_hooks')
         .delete()
         .eq('id', id);
-      
-      if (error) throw error;
-      
-      // Update local state to immediately reflect deletion
-      setHistory(prevHistory => prevHistory.filter(item => item.id !== id));
-      if (viewingHook && viewingHook.id === id) {
-        setViewingHook(null);
+
+      if (error) {
+        console.error('Supabase delete error:', error);
+        // Rollback the optimistic update if server fails
+        setHistory(prev => [...prev, hookToDelete]);
+        throw error;
       }
+
       setMessage('Hook deleted successfully!');
       setTimeout(() => setMessage(null), 3000);
+
+      // Update pagination if needed
+      if (currentItems.length === 1 && currentPage > 1) {
+        setCurrentPage(currentPage - 1);
+      }
     } catch (err) {
-      setError('Failed to delete hook');
+      console.error('Error deleting hook:', err);
+      setError('Failed to delete hook. Please try again.');
+      setTimeout(() => setError(null), 3000);
+      // Refresh full history to ensure consistency
+      fetchHistory();
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  // Function to copy hook from history
+  const copyHookFromHistory = async (hookText: string) => {
+    try {
+      await navigator.clipboard.writeText(hookText);
+      setMessage("Copied to clipboard!");
+      setTimeout(() => setMessage(null), 3000);
+    } catch (err) {
+      setError('Failed to copy to clipboard');
       setTimeout(() => setError(null), 3000);
     }
   };
@@ -420,7 +478,7 @@ export default function LessonHookTool() {
       </div>
       
       {message && (
-        <div className="fixed bottom-4 right-4 p-4 bg-pink-100 text-pink-600 rounded-lg z-50">
+        <div className="fixed bottom-4 right-4 p-4 bg-pink-100 text-pink-600 rounded-lg z-50 shadow-md">
           {message}
         </div>
       )}
@@ -469,7 +527,7 @@ export default function LessonHookTool() {
         )}
       </div>
 
-      {/* History Section - Now wrapped in a Card */}
+      {/* History Section */}
       <div className="w-full mt-8">
         <Card className="p-6 bg-white shadow-md rounded-lg border border-gray-200">
           <div className="flex justify-between items-center mb-4">
@@ -486,13 +544,13 @@ export default function LessonHookTool() {
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
                 <span className="text-sm">
-                  {currentPage} of {totalPages}
+                  {currentPage} of {totalPages || 1}
                 </span>
                 <Button 
                   variant="outline" 
                   size="sm" 
                   onClick={goToNextPage} 
-                  disabled={currentPage === totalPages}
+                  disabled={currentPage === totalPages || totalPages === 0}
                   className="p-1"
                 >
                   <ChevronRight className="h-4 w-4" />
@@ -529,9 +587,10 @@ export default function LessonHookTool() {
                       <Button 
                         size="sm" 
                         onClick={() => deleteHook(item.id)}
-                        className="p-1 bg-pink-600 hover:bg-pink-700 text-white"
+                        disabled={isDeleting}
+                        className={`p-1 bg-pink-600 hover:bg-pink-700 text-white ${isDeleting ? 'opacity-50 cursor-not-allowed' : ''}`}
                       >
-                        Delete
+                        {isDeleting ? '...' : 'Delete'}
                       </Button>
                     </div>
                   </div>
@@ -574,11 +633,7 @@ export default function LessonHookTool() {
                 <Button 
                   variant="outline" 
                   className="flex-1"
-                  onClick={() => {
-                    navigator.clipboard.writeText(viewingHook.generated_hook);
-                    setMessage("Copied to clipboard!");
-                    setTimeout(() => setMessage(null), 3000);
-                  }}
+                  onClick={() => copyHookFromHistory(viewingHook.generated_hook)}
                 >
                   <Copy className="h-4 w-4 mr-2" /> Copy Hook
                 </Button>
@@ -586,10 +641,10 @@ export default function LessonHookTool() {
                   className="flex-1 bg-pink-600 hover:bg-pink-700 text-white"
                   onClick={() => {
                     deleteHook(viewingHook.id);
-                    closeHookDetails();
                   }}
+                  disabled={isDeleting}
                 >
-                  Delete
+                  {isDeleting ? 'Deleting...' : 'Delete'}
                 </Button>
               </div>
             </div>
