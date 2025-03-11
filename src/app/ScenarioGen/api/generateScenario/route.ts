@@ -19,16 +19,20 @@ export async function GET() {
             id: scenario.id,
             prompt: scenario.prompt,
             response: scenario.response
-                .replace(/\n{2,}/g, "\n\n")
-                .replace(/\*\*(.*?)\*\*/g, "**$1**")
-                .replace(/(Scenario:|Beginning:|Challenge:|Application of .*?:|Final Outcome:)/g, "\n\n**$1**\n\n")
+                // Normalize spacing
+                .replace(/\n{3,}/g, "\n\n")
+                .trim()
+                // Ensure consistent formatting
+                .replace(/\*\*\*\*(.*?)\*\*\*\*/g, "**$1**")
+                .replace(/(Scenario:|Beginning:|Challenge:|Application of .*?:|Final Outcome:)/g, 
+                    "\n\n**$1**\n\n")
         }));
 
         return NextResponse.json({ 
             success: true,
             scenarios: formattedScenarios 
         });
-    } catch (err: any) {
+    } catch (err: Error | unknown) {
         console.error("❌ Internal Server Error:", err);
         return NextResponse.json({ 
             success: false,
@@ -100,9 +104,18 @@ export async function POST(req: Request) {
         const generatedText = aiData.choices[0]?.message?.content || "No response generated.";
 
         const formattedResponse = generatedText
-            .replace(/\n{2,}/g, "\n\n")
-            .replace(/\*\*(.*?)\*\*/g, "**$1**")
-            .replace(/(Scenario:|Beginning:|Challenge:|Application of .*?:|Final Outcome:)/g, "\n\n**$1**\n\n");
+            // First normalize spacing and line breaks
+            .replace(/\n{3,}/g, "\n\n")
+            .trim()
+            // Ensure consistent formatting for section headers
+            .replace(/(Scenario:|Beginning:|Challenge:|Application of .*?:|Final Outcome:)/g, 
+                "\n\n**$1**\n\n")
+            // Make sure there are no duplicate asterisks in bold text
+            .replace(/\*\*\*\*(.*?)\*\*\*\*/g, "**$1**")
+            // Ensure proper spacing after list items
+            .replace(/• (.*?)(?!\n)/g, "• $1\n")
+            // Ensure proper paragraph breaks
+            .replace(/\n{3,}/g, "\n\n");
 
         // Save to database
         const { data: newData, error: insertError } = await supabase

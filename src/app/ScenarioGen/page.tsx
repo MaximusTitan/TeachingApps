@@ -1,6 +1,5 @@
 "use client";
 import { useState, useEffect } from "react";
-import { saveScenario } from "@/utils/localStorage";
 import { supabase } from "@/utils/supabaseClient";
 
 interface Scenario {
@@ -25,7 +24,6 @@ export default function ScenarioGenerator() {
   const [theme, setTheme] = useState("light");
   const [savedScenarios, setSavedScenarios] = useState<Scenario[]>([]);
   const [viewingScenario, setViewingScenario] = useState<number | null>(null);
-  const [scenario, setScenario] = useState<Scenario | null>(null);
 
   // Detect system theme (Dark/Light mode)
   useEffect(() => {
@@ -60,7 +58,7 @@ export default function ScenarioGenerator() {
         .single();
 
       if (existing) {
-        setResponse(existing.response);
+        setResponse(formatScenarioOutput(existing.response));
         setInput("");
         setSavedScenarios(prev =>
           prev.find(s => s.id === existing.id) ? prev : [existing, ...prev]
@@ -132,28 +130,74 @@ export default function ScenarioGenerator() {
     }
   };
 
-  interface FormattedText {
-    text: string;
-  }
-
   const formatScenarioOutput = (text: string): string => {
     if (!text) return '';
     
-    // Format markdown-style text with proper HTML and styling
-    return text
-      .replace(/# (.*?)\n/g, '<h1 class="text-2xl font-bold text-pink-600 mb-4">$1</h1>')
-      .replace(/## (.*?)\n/g, '<h2 class="text-xl font-semibold text-pink-500 mb-3">$1</h2>')
-      .replace(/### (.*?)\n/g, '<h3 class="text-lg font-medium text-pink-400 mb-2">$1</h3>')
-      .replace(/\*\*(.*?)\*\*/g, '<strong class="text-pink-600">$1</strong>')
-      .replace(/• (.*)/g, '<li class="ml-4 mb-2">$1</li>')
+    // First, normalize line breaks and spacing
+    let formatted = text
+      .replace(/\n{3,}/g, "\n\n") // Reduce excessive line breaks
+      .trim();
+    
+    // Format section headers consistently with appropriate spacing
+    formatted = formatted
+      .replace(/\*\*(Scenario:|Beginning:|Challenge:|Application of .*?:|Final Outcome:)\*\*/g, 
+        '<h3 class="text-xl font-semibold text-pink-600 mt-4 mb-2">$1</h3>')
+      .replace(/\*\*(.*?)\*\*/g, '<span class="font-semibold text-pink-600">$1</span>')
+      
+      // Format list items
+      .replace(/• (.*)/g, '<li class="ml-4 mb-2">• $1</li>')
       .replace(/^\d\.\s(.*)$/gm, '<div class="mb-2 ml-4">$1</div>')
-      .replace(/\n\n/g, '<br><br>')
-      .replace(/\n/g, '<br>');
+      
+      // Handle paragraph spacing
+      .replace(/\n\n/g, '</p><p class="mb-3">')
+      .replace(/\n/g, '<br>')
+      
+      // Remove any remaining double asterisks
+      .replace(/\*\*/g, '');
+    
+    // Wrap in paragraph tags if not already
+    if (!formatted.startsWith('<h3') && !formatted.startsWith('<p')) {
+      formatted = `<p class="mb-3">${formatted}</p>`;
+    }
+    
+    return formatted;
+  };
+
+  // Updated formatting function for saved scenarios
+  const formatSavedScenarioDisplay = (text: string): string => {
+    if (!text) return '';
+    
+    // Create a more compact version for the saved scenarios view
+    let formatted = text
+      // Remove excess whitespace
+      .replace(/\n{3,}/g, "\n\n")
+      .trim();
+      
+    // Format headings and important text - USING SAME COLORS AS MAIN OUTPUT
+    formatted = formatted
+      .replace(/\*\*(Scenario:|Beginning:|Challenge:|Application of .*?:|Final Outcome:)\*\*/g, 
+        '<h4 class="text-lg font-semibold text-pink-600 mt-3 mb-1">$1</h4>')
+      .replace(/\*\*(.*?)\*\*/g, '<span class="font-medium text-pink-600">$1</span>')
+      
+      // Ensure proper paragraph spacing
+      .replace(/\n\n/g, '</p><p class="mb-2">')
+      .replace(/\n/g, '<br>')
+      
+      // Remove any remaining double asterisks
+      .replace(/\*\*/g, '');
+    
+    // Wrap in paragraph tags
+    if (!formatted.startsWith('<h4') && !formatted.startsWith('<p')) {
+      formatted = `<p class="mb-2">${formatted}</p>`;
+    }
+    
+    return formatted;
   };
 
   const handleCopyScenario = (text: string) => {
     navigator.clipboard.writeText(text);
   };
+  
   const handleDeleteScenario = async (index: number) => {
     try {
       const scenario = savedScenarios[index];
@@ -187,7 +231,7 @@ export default function ScenarioGenerator() {
         <h2 className="text-3xl font-bold text-pink-600 text-center mb-4">
           Real-World Scenario Generator
         </h2>
-        <p className="  text-1xl text-center  text-gray-600 mb-4">
+        <p className="text-1xl text-center text-gray-600 mb-4">
           Generate realistic scenario prompts for your projects, stories, or games.
         </p>
         <input
@@ -216,7 +260,7 @@ export default function ScenarioGenerator() {
         }`}>
           <div 
             className={`prose max-w-none ${
-              theme === "dark" ? "text-gray-300" : "text-gray-600"
+              theme === "dark" ? "text-gray-300" : "text-gray-700"
             }`}
             dangerouslySetInnerHTML={{ 
               __html: response 
@@ -224,6 +268,7 @@ export default function ScenarioGenerator() {
           />
         </div>
       )}
+      
       {/* Saved Scenarios */}
       {savedScenarios.length > 0 && (
         <div className="mt-10 w-full max-w-2xl">
@@ -271,7 +316,12 @@ export default function ScenarioGenerator() {
                   <div className={`mt-2 p-3 rounded ${
                     theme === "dark" ? "bg-gray-700" : "bg-white"
                   }`}>
-                    <p className="text-gray-600 dark:text-gray-300" dangerouslySetInnerHTML={{ __html: scenario.response }}></p>
+                    <div 
+                      className={`${theme === "dark" ? "text-gray-200" : "text-gray-700"} prose-sm`}
+                      dangerouslySetInnerHTML={{ 
+                        __html: formatSavedScenarioDisplay(scenario.response) 
+                      }}
+                    />
                   </div>
                 )}
               </li>
@@ -282,5 +332,3 @@ export default function ScenarioGenerator() {
     </div>
   );
 }
-
-
