@@ -2,7 +2,7 @@
 
 import { ThemeProvider } from "next-themes";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function ClientLayout({
   children,
@@ -11,6 +11,11 @@ export default function ClientLayout({
 }) {
   const pathname = usePathname();
   const [userStatus] = useState<string | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // Redirect to verification waiting page if status is disabled
   if (
@@ -18,8 +23,10 @@ export default function ClientLayout({
     pathname !== "/verification-waiting" &&
     pathname !== "/sign-in"
   ) {
-    window.location.href = "/verification-waiting";
-    return null;
+    if (isMounted) {
+      window.location.href = "/verification-waiting";
+      return null;
+    }
   }
 
   return (
@@ -29,9 +36,9 @@ export default function ClientLayout({
       enableSystem
       disableTransitionOnChange
     >
-      <main className="flex-1 flex flex-col ">
-        <div>{children}</div>
-      </main>
+      <div className="flex-1 flex flex-col">
+        {children}
+      </div>
     </ThemeProvider>
   );
 }
