@@ -29,7 +29,7 @@ const boardsByCountry: Record<string, Array<{ value: string; label: string }>> =
     { value: "nios", label: "NIOS" },
   ],
   nigeria: [
-    { value: "waec", label: "WAEC" }, 
+    { value: "waec", label: "WAEC" },
     { value: "neco", label: "NECO" },
     { value: "ubec", label: "UBEC" },
     { value: "state-board", label: "State Education Board" },
@@ -178,7 +178,7 @@ export default function DiscussionPromptGenerator() {
       if (
         viewedPrompt &&
         discussionHistory.find((item) => item.id === id)?.generated_prompts ===
-          viewedPrompt
+        viewedPrompt
       ) {
         setViewedPrompt("");
       }
