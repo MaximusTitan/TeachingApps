@@ -119,11 +119,11 @@ export default function CanvasCard({ canvas, onUpdate }: CanvasCardProps) {
   };
 
   const handleOpenCanvas = () => {
-    router.push(`/Canvas/${canvas.id}`);
+    router.push(`/tools/Canvas/${canvas.id}`);
   };
 
   const generateShareLink = () => {
-    return `${window.location.origin}/Canvas/${canvas.id}?view=true`;
+    return `${window.location.origin}/tools/Canvas/${canvas.id}?view=true`;
   };
 
   return (
