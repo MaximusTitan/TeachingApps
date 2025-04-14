@@ -14,38 +14,12 @@ export async function generateDiscussionPrompt(
   promptData: DiscussionPromptRequest,
 ): Promise<string> {
   try {
-    const API_URL = process.env.NEXT_PUBLIC_API_URL;
-    const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
-    const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_KEY;
-
-    if (!API_URL || !API_KEY || !SUPABASE_URL || !SUPABASE_KEY) {
-      throw new Error("API or Supabase configuration is missing");
-    }
-
-    console.log("🔹 Sending request to API with data:", promptData);
-
-    const response = await fetch(API_URL, {
-      method: "POST",
+    const response = await fetch('/api/discussionprompts', {
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${API_KEY}`,
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        model: "llama3-8b-8192",
-        messages: [
-          {
-            role: "system",
-            content: `You are a discussion prompt generator. Create clear and engaging prompts based on the provided parameters.`,
-          },
-          {
-            role: "user",
-            content: `Generate a discussion prompt for a ${promptData.engagementLevel.label} with the following parameters: Country: ${promptData.country.label}, Board: ${promptData.board.label}, Subject: ${promptData.subject.label}, Grade Level: ${promptData.gradeLevel.label}, Topic: ${promptData.topic}, Time Limit: ${promptData.timeLimit} minutes.`,
-          },
-        ],
-        temperature: 0.7,
-        max_tokens: 1000,
-      }),
+      body: JSON.stringify(promptData),
     });
 
     if (!response.ok) {
@@ -55,14 +29,7 @@ export async function generateDiscussionPrompt(
     }
 
     const data = await response.json();
-    const generatedPrompt =
-      data.choices?.[0]?.message?.content || "No response from API";
-    console.log("✅ Generated Prompt:", generatedPrompt);
-
-    // Save to Supabase
-    await savePromptToHistory(promptData, generatedPrompt);
-
-    return generatedPrompt;
+    return data.data;
   } catch (error) {
     console.error("❌ Error generating discussion prompt:", error);
     throw error;
@@ -110,44 +77,36 @@ export async function savePromptToHistory(
 }
 
 export async function fetchDiscussionHistory() {
-  const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_KEY;
-
-  if (!SUPABASE_URL || !SUPABASE_KEY) {
-    throw new Error("Supabase configuration is missing");
-  }
-
-  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-  const { data, error } = await supabase
-    .from("discussion_prompts")
-    .select("*")
-    .order("created_at", { ascending: false });
-
-  if (error) {
+  try {
+    const response = await fetch('/api/discussionprompts');
+    
+    if (!response.ok) {
+      throw new Error(`API request failed with status ${response.status}`);
+    }
+    
+    const data = await response.json();
+    return data.data;
+  } catch (error) {
     console.error("❌ Error fetching discussion history:", error);
-    throw new Error("Failed to fetch discussion history");
+    throw error;
   }
-
-  console.log("Fetched discussion history:", data);
-  return data;
 }
 
 export async function deleteDiscussionPrompt(id: string) {
-  const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_KEY;
-
-  if (!SUPABASE_URL || !SUPABASE_KEY) {
-    throw new Error("Supabase configuration is missing");
-  }
-
-  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-  const { error } = await supabase
-    .from("discussion_prompts")
-    .delete()
-    .match({ id });
-
-  if (error) {
+  try {
+    const response = await fetch('/api/discussionprompts', {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ id }),
+    });
+    
+    if (!response.ok) {
+      throw new Error(`API request failed with status ${response.status}`);
+    }
+  } catch (error) {
     console.error("❌ Error deleting discussion prompt:", error);
-    throw new Error("Failed to delete discussion prompt");
+    throw error;
   }
 }

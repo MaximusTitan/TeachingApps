@@ -3,6 +3,10 @@ import { NextResponse } from 'next/server';
 // Set this to your Sarvam API key in an environment variable
 const SARVAM_API_KEY = process.env.SARVAM_API_KEY;
 
+// New configuration format for Next.js App Router
+export const dynamic = 'force-dynamic';
+export const maxDuration = 60; // Increase timeout for large audio files
+
 export async function POST(request: Request) {
   if (!SARVAM_API_KEY) {
     return NextResponse.json({ error: 'API key not configured' }, { status: 500 });
@@ -60,10 +64,3 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
-// Increase the limit for audio files
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};

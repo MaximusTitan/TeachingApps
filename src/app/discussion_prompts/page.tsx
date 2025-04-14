@@ -19,7 +19,7 @@ const countries = [
   { value: "other", label: "Other" },
 ];
 
-const boardsByCountry = {
+const boardsByCountry: Record<string, Array<{ value: string; label: string }>> = {
   india: [
     { value: "cbse", label: "CBSE" },
     { value: "cisce", label: "CISCE" },
@@ -89,6 +89,17 @@ const gradeLevels = Array.from({ length: 12 }, (_, i) => ({
   label: `Grade ${i + 1}`,
 }));
 
+// Define interface for discussion history item
+interface DiscussionItem {
+  id: string;
+  topic: string;
+  subject: string;
+  grade_level: string;
+  time_limit: number;
+  created_at: string;
+  generated_prompts: string;
+}
+
 export default function DiscussionPromptGenerator() {
   const [selectedCountry, setSelectedCountry] = useState(countries[0]);
   const [selectedBoard, setSelectedBoard] = useState(
@@ -104,7 +115,7 @@ export default function DiscussionPromptGenerator() {
 
   const [generatedPrompt, setGeneratedPrompt] = useState("");
   const [viewedPrompt, setViewedPrompt] = useState("");
-  const [discussionHistory, setDiscussionHistory] = useState([]);
+  const [discussionHistory, setDiscussionHistory] = useState<DiscussionItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 

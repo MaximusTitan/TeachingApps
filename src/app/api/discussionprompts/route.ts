@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { NextRequest, NextResponse } from "next/server";
 
 type DiscussionPromptRequest = {
   country: { label: string };
@@ -10,7 +11,8 @@ type DiscussionPromptRequest = {
   engagementLevel: { label: string };
 };
 
-export async function generateDiscussionPrompt(
+// Helper function, not exported
+async function generateDiscussionPrompt(
   promptData: DiscussionPromptRequest,
 ): Promise<string> {
   try {
@@ -69,7 +71,8 @@ export async function generateDiscussionPrompt(
   }
 }
 
-export async function savePromptToHistory(
+// Helper function, not exported
+async function savePromptToHistory(
   promptData: DiscussionPromptRequest,
   generatedPrompts: string,
 ) {
@@ -109,7 +112,8 @@ export async function savePromptToHistory(
   }
 }
 
-export async function fetchDiscussionHistory() {
+// Helper function, not exported
+async function fetchDiscussionHistory() {
   const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_KEY;
 
@@ -132,7 +136,8 @@ export async function fetchDiscussionHistory() {
   return data;
 }
 
-export async function deleteDiscussionPrompt(id: string) {
+// Helper function, not exported
+async function deleteDiscussionPrompt(id: string) {
   const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_KEY;
 
@@ -149,5 +154,45 @@ export async function deleteDiscussionPrompt(id: string) {
   if (error) {
     console.error("❌ Error deleting discussion prompt:", error);
     throw new Error("Failed to delete discussion prompt");
+  }
+}
+
+// HTTP Route Handlers for Next.js App Router
+
+export async function GET() {
+  try {
+    const history = await fetchDiscussionHistory();
+    return NextResponse.json({ success: true, data: history });
+  } catch (error) {
+    return NextResponse.json(
+      { success: false, error: "Failed to fetch discussion history" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const promptData = await request.json() as DiscussionPromptRequest;
+    const generatedPrompt = await generateDiscussionPrompt(promptData);
+    return NextResponse.json({ success: true, data: generatedPrompt });
+  } catch (error) {
+    return NextResponse.json(
+      { success: false, error: "Failed to generate discussion prompt" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const { id } = await request.json();
+    await deleteDiscussionPrompt(id);
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    return NextResponse.json(
+      { success: false, error: "Failed to delete discussion prompt" },
+      { status: 500 }
+    );
   }
 }

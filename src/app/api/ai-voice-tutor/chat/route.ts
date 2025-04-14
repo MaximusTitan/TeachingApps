@@ -29,7 +29,7 @@ Your responses should be:
 
     // Generate a response using Groq
     const { text } = await generateText({
-      model: model,
+      model: model as any,
       prompt: message,
       temperature: 0.7,
       maxTokens: 800,

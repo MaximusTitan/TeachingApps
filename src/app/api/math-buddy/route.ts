@@ -92,7 +92,7 @@ CRITICAL INSTRUCTION FOR GEOMETRY SHAPES:
 
         // Generate text using the Groq provider with the constructed prompt
         const { text } = await generateText({
-            model: model,
+            model: model as any,
             prompt: formattedPrompt,
             temperature: 0.7,
             maxTokens: 800,
