@@ -103,7 +103,12 @@ function generateUITemplate(prompt: string) {
   return templates[Math.floor(Math.random() * templates.length)];
 }
 
-function TailwindNode({ data }: { data: { label: string; content?: string; uiCode?: string; } }) {
+function TailwindNode({ data }: { data: { 
+  label: string; 
+  content?: string; 
+  uiCode?: string;
+  updateNodeData?: (data: { content: string; uiCode: string }) => void;
+} }) {
   const [input, setInput] = useState(data.content || '');
   const [uiCode, setUiCode] = useState(data.uiCode || '');
   const [isLoading, setIsLoading] = useState(false);

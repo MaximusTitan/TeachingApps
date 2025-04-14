@@ -49,7 +49,7 @@ Your story should be both engaging and informative, while fully aligning with th
 
     // Generate text using the Groq provider with the constructed prompt.
     const { text } = await generateText({
-      model: model,
+      model: model as any,
       prompt: prompt,
       temperature: 0.7,
       maxTokens: 1024,

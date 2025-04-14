@@ -2,12 +2,12 @@ import { NextResponse } from "next/server";
 import Groq from "groq-sdk";
 import { supabase } from "@/lib/supabase";
 
-if (!process.env.GROQ_API_KEY) {
-  throw new Error("Missing GROQ_API_KEY environment variable");
+if (!process.env.NEXT_PUBLIC_GROQ_API_KEY) {
+  throw new Error("Missing NEXT_PUBLIC_GROQ_API_KEY environment variable");
 }
 
 const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY,
+  apiKey: process.env.NEXT_PUBLIC_GROQ_API_KEY,
 });
 
 const HOOK_TEMPLATES = {

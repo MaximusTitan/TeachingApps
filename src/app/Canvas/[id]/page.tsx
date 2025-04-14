@@ -6,7 +6,7 @@ import { ChevronLeft } from 'lucide-react';
 import IntegratedCanvas from '../canvas/IntegratedCanvas';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
-import { Canvas } from '@/types/canvas';
+import { Canvas } from '../types/canvas';
 import Link from 'next/link';
 
 export default function CanvasPage() {

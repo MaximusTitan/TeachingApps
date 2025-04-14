@@ -548,7 +548,7 @@ const IntegratedCanvas = forwardRef<
       });
 
       (canvas as fabric.Canvas & { add: (obj: any) => fabric.Canvas }).add(text);
-      canvas.setActiveObject(text);
+      canvas.setActiveObject(text as any);
 
       // Activate text editing with a slight delay to ensure it's ready
       setTimeout(() => {
@@ -872,19 +872,24 @@ const IntegratedCanvas = forwardRef<
     reader.onload = (f) => {
       const data = f.target?.result;
       if (typeof data === 'string') {
-        fabric.Image.fromURL(data, (img) => {
+        const imgElement = new Image();
+        imgElement.src = data;
+        imgElement.onload = function() {
+          const fabricImage = new fabric.Image(imgElement);
+          
           // Center the image initially
-          img.scaleToWidth(200); // Scale image to a default width
-          img.set({
-            left: (canvas.width ?? window.innerWidth) / 2 - (img.getScaledWidth() / 2),
-            top: (canvas.height ?? window.innerHeight) / 2 - (img.getScaledHeight() / 2),
+          fabricImage.scaleToWidth(200); // Scale image to a default width
+          fabricImage.set({
+            left: (canvas.width ?? window.innerWidth) / 2 - (fabricImage.getScaledWidth() / 2),
+            top: (canvas.height ?? window.innerHeight) / 2 - (fabricImage.getScaledHeight() / 2),
             // Add other properties if needed
           });
-          canvas.add(img);
-          canvas.setActiveObject(img); // Make the new image active
+          
+          canvas.add(fabricImage as any);
+          canvas.setActiveObject(fabricImage as any);
           canvas.renderAll();
           setActiveTool('select'); // Switch back to select tool after adding image
-        });
+        };
       }
     };
 
@@ -1152,52 +1157,6 @@ const IntegratedCanvas = forwardRef<
           canvas.defaultCursor = 'text';
           handleAddText();
           break;
-        case 'select':
-          canvas.isDrawingMode = false;
-          canvas.selection = true;
-          canvas.defaultCursor = 'default';
-          canvas.hoverCursor = 'move';
-
-          // Ensure all objects are selectable
-          canvas.forEachObject(function (obj) {
-            obj.selectable = true;
-            obj.hasControls = true;
-            obj.hasBorders = true;
-            if (obj.evented !== undefined) {
-              obj.evented = true;
-            }
-          });
-
-          // Enhanced selection setup:
-          canvas.off('mouse:down');
-          canvas.off('mouse:move');
-          canvas.off('mouse:up');
-          canvas.off('mouse:dblclick');
-
-          // Single click to select objects
-          canvas.on('mouse:down', function (options) {
-            console.log("Mouse down on select mode", options.target);
-            if (options.target) {
-              canvas.setActiveObject(options.target);
-              canvas.renderAll();
-            }
-          });
-
-          // Double click to edit text
-          canvas.on('mouse:dblclick', function (options) {
-            if (options.target && (options.target.type === 'i-text' || options.target.type === 'text')) {
-              console.log("Double-clicked on text, entering edit mode");
-              const textObject = options.target as fabric.IText;
-              if (textObject.enterEditing) {
-                textObject.enterEditing();
-                if (textObject.selectAll) {
-                  textObject.selectAll();
-                }
-                canvas.renderAll();
-              }
-            }
-          });
-          break;
         case 'hand':
           canvas.isDrawingMode = false;
           canvas.selection = true;
@@ -1235,7 +1194,7 @@ const IntegratedCanvas = forwardRef<
               if (canvas.lastPosX !== undefined && canvas.lastPosY !== undefined) {
                 const deltaX = evt.clientX - canvas.lastPosX;
                 const deltaY = evt.clientY - canvas.lastPosY;
-                canvas.relativePan({ x: deltaX, y: deltaY });
+                canvas.relativePan({ x: deltaX, y: deltaY } as any);
                 canvas.lastPosX = evt.clientX;
                 canvas.lastPosY = evt.clientY;
               }

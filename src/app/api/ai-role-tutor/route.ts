@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import { groq } from "@ai-sdk/groq";
 import { generateText } from "ai";
 
+// Set GROQ_API_KEY from NEXT_PUBLIC_GROQ_API_KEY
+process.env.GROQ_API_KEY = process.env.NEXT_PUBLIC_GROQ_API_KEY;
+
 export async function POST(req: Request) {
   try {
     const { character, topic, country, board, subject, grade, question } = await req.json();
@@ -46,7 +49,7 @@ Now, please respond as ${character} would to a Grade ${grade} student:
 
     // Generate text using the Groq provider with the constructed prompt
     const { text } = await generateText({
-      model: model,
+      model: model as any,
       prompt: prompt,
       temperature: 0.7,
       maxTokens: 1024,
