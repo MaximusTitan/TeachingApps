@@ -5,9 +5,9 @@ import ReactMarkdown from "react-markdown";
 import { AlertCircle, Upload, Volume2, Loader2, Mic, RotateCcw } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { UploadForm } from "@/app/story-listener/components/UploadForm";
-import { RecordAudio } from "@/app/story-listener/components/RecordAudio";
-import { FeedbackCard } from "@/app/story-listener/components/FeedbackCard";
+import { UploadForm } from "@/app/tools/story-listener/components/UploadForm";
+import { RecordAudio } from "@/app/tools/story-listener/components/RecordAudio";
+import { FeedbackCard } from "@/app/tools/story-listener/components/FeedbackCard";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
