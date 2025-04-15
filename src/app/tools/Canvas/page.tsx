@@ -80,7 +80,7 @@ export default function CanvasStudio() {
       }
 
       // Redirect to the new canvas
-      window.location.href = `/Canvas/${newCanvas.id}`;
+      window.location.href = `/tools/Canvas/${newCanvas.id}`;
     } catch (error) {
       console.error('Error creating canvas:', error);
     }

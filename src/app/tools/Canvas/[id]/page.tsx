@@ -97,7 +97,7 @@ export default function CanvasPage() {
   // Handle back button click - save canvas before navigating
   const handleBackClick = async () => {
     if (isViewOnly) {
-      window.location.href = '/Canvas';
+      window.location.href = '/tools/Canvas';
       return;
     }
 
@@ -121,7 +121,7 @@ export default function CanvasPage() {
     } finally {
       setIsSaving(false);
       console.log("Navigating to /studio");
-      window.location.href = '/Canvas';
+      window.location.href = '/tools/Canvas';
     }
   };
 
