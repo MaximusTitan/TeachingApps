@@ -1,6 +1,63 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
 
+// Add this initialization function at the top of the file
+async function initSupabaseTable() {
+  try {
+    const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (!SUPABASE_URL || !SUPABASE_KEY) {
+      throw new Error("Supabase configuration is missing");
+    }
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+    
+    // Check if table exists by trying to select from it
+    const { error } = await supabase
+      .from('discussion_prompts')
+      .select('id')
+      .limit(1);
+    
+    // If the error is that the table doesn't exist, create it
+    if (error && error.code === '42P01') {
+      console.log("⚙️ Creating discussion_prompts table...");
+      
+      // Create the table using SQL
+      const { error: createError } = await supabase.rpc('exec_sql', {
+        sql_query: `
+          CREATE TABLE IF NOT EXISTS public.discussion_prompts (
+            id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+            topic TEXT NOT NULL,
+            country TEXT NOT NULL,
+            board TEXT NOT NULL,
+            subject TEXT NOT NULL,
+            grade_level TEXT NOT NULL,
+            engagement_level TEXT NOT NULL,
+            time_limit INTEGER NOT NULL,
+            generated_prompts TEXT NOT NULL,
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+            updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+          );
+        `
+      });
+      
+      if (createError) {
+        console.error("❌ Error creating table:", createError);
+        return false;
+      }
+      
+      console.log("✅ Table created successfully");
+      return true;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error("❌ Error initializing Supabase:", error);
+    return false;
+  }
+}
+
 type DiscussionPromptRequest = {
   country: { label: string };
   board: { label: string };
@@ -19,7 +76,7 @@ async function generateDiscussionPrompt(
     const API_URL = process.env.NEXT_PUBLIC_API_URL;
     const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
     const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_KEY;
+    const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
     if (!API_URL || !API_KEY || !SUPABASE_URL || !SUPABASE_KEY) {
       throw new Error("API or Supabase configuration is missing");
@@ -78,7 +135,7 @@ async function savePromptToHistory(
 ) {
   try {
     const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_KEY;
+    const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
     if (!SUPABASE_URL || !SUPABASE_KEY) {
       throw new Error("Supabase configuration is missing");
@@ -115,7 +172,7 @@ async function savePromptToHistory(
 // Helper function, not exported
 async function fetchDiscussionHistory() {
   const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_KEY;
+  const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!SUPABASE_URL || !SUPABASE_KEY) {
     throw new Error("Supabase configuration is missing");
@@ -139,7 +196,7 @@ async function fetchDiscussionHistory() {
 // Helper function, not exported
 async function deleteDiscussionPrompt(id: string) {
   const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_KEY;
+  const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!SUPABASE_URL || !SUPABASE_KEY) {
     throw new Error("Supabase configuration is missing");
@@ -161,6 +218,9 @@ async function deleteDiscussionPrompt(id: string) {
 
 export async function GET() {
   try {
+    // Try to initialize the table first
+    await initSupabaseTable();
+    
     const history = await fetchDiscussionHistory();
     return NextResponse.json({ success: true, data: history });
   } catch (error) {
@@ -173,10 +233,14 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    // Try to initialize the table first
+    await initSupabaseTable();
+    
     const promptData = await request.json() as DiscussionPromptRequest;
     const generatedPrompt = await generateDiscussionPrompt(promptData);
     return NextResponse.json({ success: true, data: generatedPrompt });
   } catch (error) {
+    console.error("❌ POST error:", error);
     return NextResponse.json(
       { success: false, error: "Failed to generate discussion prompt" },
       { status: 500 }
@@ -186,6 +250,9 @@ export async function POST(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
+    // Try to initialize the table first
+    await initSupabaseTable();
+    
     const { id } = await request.json();
     await deleteDiscussionPrompt(id);
     return NextResponse.json({ success: true });
